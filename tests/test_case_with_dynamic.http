@@ -1,0 +1,20 @@
+POST http://{{host}}/anything/{anything}
+Accept: application/json
+
+{
+    "uuid": "{{ $uuid }}",
+    "timestamp": {{ $timestamp }},
+    "randomInt": {{ $randomInt }}
+}
+
+> {%
+    client.global.set('uuid_to_test', response.body.json.uuid)
+    client.global.set('timestamp_to_test', response.body.json.timestamp)
+    client.global.set('random_int_to_test', response.body.json.randomInt)
+    client.test('powinno zwrócić to 3 razy dla 3 różnych asercji', function () {
+        client.assert(false, 'testuję zmienną ' + client.global.get('uuid_to_test'))
+        client.assert(false, 'testuję zmienną ' + client.global.get('timestamp_to_test'))
+        client.assert(false, 'testuję zmienną ' + client.global.get('random_int_to_test'))
+    })
+%}
+

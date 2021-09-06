@@ -1,0 +1,45 @@
+#!/usr/bin/env node
+const { format } = require('util')
+const fs = require('fs')
+const readline = require('readline')
+const { parseOptions } = require('./src/options')
+const { TestPipeline } = require('./src/tester')
+const { Parser } = require('./src/parser')
+const options = parseOptions(process.argv.slice(2))
+
+// todo: multiple test files in input
+const filename = options['test-file']
+if (filename === '') {
+    throw new Error('Test file does not exist.')
+}
+
+process.stdout.write(format('Running tests for %s file.\n\n', filename))
+const client = JSON.parse(fs.readFileSync(options['client-file'], {
+    encoding: 'utf-8'
+}))[options['selected-client']]
+
+if (typeof client === 'undefined') {
+    throw new Error('Invalid client file or client not selected.')
+}
+
+const pipeline = new TestPipeline(client)
+const parser = new Parser(pipeline)
+const rl = readline.createInterface({
+    input: fs.createReadStream(filename),
+    crlfDelay: Infinity
+})
+
+rl.on('line', (line) => {
+    parser.processLine(line)
+})
+
+rl.on('close', () => {
+    if (Object.keys(parser.currentTestCase).length > 0) {
+        pipeline.push(parser.currentTestCase)
+    }
+
+    pipeline.finish()
+})
+
+// todo: zapisać response z każdego wykonanego requestu do jakiegoś tmp
+

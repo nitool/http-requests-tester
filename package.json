@@ -1,0 +1,11 @@
+{
+  "name": "http-tester",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "author": "",
+  "license": "ISC",
+  "bin": {
+      "http-tester": "./http-tester"
+  }
+}

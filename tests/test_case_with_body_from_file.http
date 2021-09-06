@@ -1,0 +1,23 @@
+POST http://{{host}}/anything/{anything}
+Accept: application/json
+
+< tests/test_case_with_body_from_file.json
+
+> {%
+    client.global.set('flow_test_1', response.body.json.test)
+    client.test('rzeczywisty test, ma zwracać 200', function () {
+        client.assert(response.status === 200, 'kod nie jest 200')
+    })
+%}
+
+###
+
+POST http://{{host}}/status/{{ flow_test_1 }}
+Accept: text/plain
+
+> {%
+    client.test('rzeczywisty test, sprawdzam czy wartość została przekazana', function () {
+        client.assert(response.status === 400, 'kod nie jest 400')
+    })
+%}
+

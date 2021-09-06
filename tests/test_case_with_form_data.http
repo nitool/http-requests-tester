@@ -1,0 +1,19 @@
+# Example post
+POST http://{{host}}/post
+Accept: application/json
+Content-Type: application/x-www-form-urlencoded
+
+comments=comments content&custemail=example@email.pl&custname=abc&custtel=123123123&delivery=12:00&size=small&topping=bacon
+
+> {%
+    client.test('testowanie wysyłanych danych', function () {
+        client.assert(response.body.form.comments === 'comments content', 'comment is not valid')
+        client.assert(response.body.form.custemail === 'example@email.pl', 'custemail is not valid')
+        client.assert(response.body.form.custname === 'abc', 'custname is not valid')
+        client.assert(response.body.form.custtel === '123123123', 'custtel is not valid')
+        client.assert(response.body.form.delivery === '12:00', 'delivery time is not valid')
+        client.assert(response.body.form.size === 'small', 'size is not valid')
+        client.assert(response.body.form.topping === 'bacon', 'bacon is not valid')
+    })
+%}
+
