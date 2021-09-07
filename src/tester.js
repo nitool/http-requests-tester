@@ -120,8 +120,9 @@ class TestCase {
             }),
         }
 
+        let uri
         try {
-            const uri = new URL(applyClientVariable(this.config.uri))
+            uri = new URL(applyClientVariable(this.config.uri))
         } catch (e) {
             console.log(this.config)
             throw e
