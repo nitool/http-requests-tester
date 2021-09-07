@@ -1,3 +1,5 @@
+require('https').globalAgent.options.ca = require('ssl-root-cas/latest').create()
+
 const { format } = require('util')
 const fs = require('fs')
 const path = require('path')
@@ -117,7 +119,13 @@ class TestCase {
             headers: parsedHeaders
         }
 
-        const uri = new URL(applyClientVariable(this.config.uri))
+        try {
+            const uri = new URL(applyClientVariable(this.config.uri))
+        } catch (e) {
+            console.log(this.config)
+            throw e
+        }
+
         const module = uri.protocol === 'https:' ? https : http
         const req = module.request(
             uri,
