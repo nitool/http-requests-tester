@@ -24,7 +24,7 @@ const sectionsQueries = {
             && parser.section !== 'body'
     },
 
-    isTestCaseFinishingLine: line => /^###/.test(line),
+    isTestCaseFinishingLine: line => /^###$/.test(line.trim()),
     isTestsSectionStart: line => /^> \{%$/.test(line.trim()),
     isTestsSectionFile: line => /> ([0-9A-Za-z\/_.]*)$/.test(line.trim()),
     isTestCaseNameLine: line => /^[\/#](\s+)?\w/.test(line),
