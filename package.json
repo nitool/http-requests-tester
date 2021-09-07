@@ -1,10 +1,10 @@
 {
-  "name": "web-test",
+  "name": "http-requests-tester",
   "version": "1.0.0",
   "description": "",
   "author": "",
   "license": "ISC",
   "bin": {
-      "web-test": "./web-test"
+      "http-requests-tester": "./http-requests-tester"
   }
 }
