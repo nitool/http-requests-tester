@@ -1,5 +1,3 @@
-require('https').globalAgent.options.ca = require('ssl-root-cas/latest').create()
-
 const { format } = require('util')
 const fs = require('fs')
 const path = require('path')
@@ -116,7 +114,10 @@ class TestCase {
 
         const options = {
             method: this.config.method,
-            headers: parsedHeaders
+            headers: parsedHeaders,
+            agent: new https.Agent({
+                rejectUnauthorized: false, // todo: dirty hack, fix
+            }),
         }
 
         try {
