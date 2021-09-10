@@ -144,7 +144,10 @@ class TestCase {
                 res.on('end', () => {
                     let parsedBody = body
                     // todo: is json instead of content type
-                    const contentType = res.headers['content-type'].split(';')[0]
+                    const contentType = res.headers.hasOwnProperty('content-type')
+                        ? res.headers['content-type'].split(';')[0]
+                        : null
+
                     if (contentType === 'application/json') {
                         parsedBody = JSON.parse(body)
                     }
