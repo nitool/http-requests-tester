@@ -96,6 +96,19 @@ class OutputManager {
     }
 }
 
+const createContentTypeObject = contentType => {
+    const mimeType = contentType.split(';')[0]
+    const charsetMatches = contentType.match(/charset=(.*?)(\s|$)/)
+    const charset = charsetMatches !== null && charsetMatches.hasOwnProperty(1) 
+        ? charsetMatches[1] 
+        : ''
+
+    return {
+        mimeType: mimeType,
+        charset: charset
+    }
+}
+
 class TestCase {
     constructor(config, pipeline) {
         this.config = config
@@ -143,12 +156,12 @@ class TestCase {
                 res.on('data', chunk => body += chunk)
                 res.on('end', () => {
                     let parsedBody = body
-                    // todo: is json instead of content type
-                    const contentType = res.headers.hasOwnProperty('content-type')
-                        ? res.headers['content-type'].split(';')[0]
-                        : null
+                    let contentType
+                    if (res.headers.hasOwnProperty('content-type')) {
+                        contentType = createContentTypeObject(res.headers['content-type'])
+                    }
 
-                    if (contentType === 'application/json') {
+                    if (contentType.mimeType === 'application/json') {
                         parsedBody = JSON.parse(body)
                     }
 
@@ -157,7 +170,7 @@ class TestCase {
                     }
 
                     resolve({
-                        contentType: res.headers['content-type'],
+                        contentType: contentType,
                         status: res.statusCode,
                         body: parsedBody,
                         headers: res.headers
