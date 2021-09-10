@@ -1,3 +1,4 @@
+### Testowa nazwa pierwszego requestu
 POST http://{{host}}/anything/{anything}
 Accept: application/json
 
@@ -13,8 +14,7 @@ Accept: application/json
     })
 %}
 
-###
-
+### Testowa nazwa drugiego requestu
 POST http://{{host}}/status/{{ flow_test_1 }}
 Accept: text/plain
 

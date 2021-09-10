@@ -1,4 +1,4 @@
-GET http://{{host}}/get
+GET https://{{host}}/get
 Accept: application/json
 
 > {%
@@ -9,7 +9,7 @@ Accept: application/json
 
 ###
 
-POST http://{{host}}/status/500
+POST https://{{host}}/status/500
 Accept: text/plain
 
 > {%
@@ -20,7 +20,7 @@ Accept: text/plain
 
 ###
 
-POST http://{{host}}/status/200
+POST https://{{host}}/status/200
 Accept: text/plain
 
 > {%

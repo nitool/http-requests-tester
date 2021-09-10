@@ -24,10 +24,10 @@ const sectionsQueries = {
             && parser.section !== 'body'
     },
 
-    isTestCaseFinishingLine: line => /^###$/.test(line.trim()),
+    isTestCaseFinishingLine: line => /^###/.test(line.trim()),
     isTestsSectionStart: line => /^> \{%$/.test(line.trim()),
     isTestsSectionFile: line => /> ([0-9A-Za-z\/_.]*)$/.test(line.trim()),
-    isTestCaseNameLine: line => /^[\/#](\s+)?\w/.test(line),
+    isTestCaseNameLine: line => /^([/]|[#]{1,3})(\s+)?\w/.test(line),
     isTestCaseTargetLine: line => /^(GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)\s+/.test(line),
     isTestsSectionContent: (line, parser) => {
         return !/^> \{%$/.test(line.trim())
@@ -51,12 +51,17 @@ class Parser {
             return
         }
 
-        if (sectionsQueries.isTestCaseFinishingLine(line)) {
+        if (this.section !== 'url' 
+            && sectionsQueries.isTestCaseFinishingLine(line)
+        ) {
             const test = Object.assign({}, this.currentTestCase)
             this.pipeline.push(test)
             this.currentTestCase = {}
             this.section = 'url'
+        }
 
+        if (sectionsQueries.isTestCaseNameLine(line)) {
+            this.currentTestCase.name = line.replace(/^([/]|[#]{1,3})(\s+)?/, '').trim()
             return
         }
 
@@ -94,11 +99,6 @@ class Parser {
         }
 
         if (this.section === null) {
-            return
-        }
-
-        if (sectionsQueries.isTestCaseNameLine(line)) {
-            this.currentTestCase.name = line.replace(/^[\/#](\s+)?/, '').trim()
             return
         }
 

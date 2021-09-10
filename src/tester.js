@@ -112,12 +112,9 @@ class TestCase {
             parsedHeaders[header] = applyClientVariable(this.config.headers[header])
         }
 
-        const options = {
+        let options = {
             method: this.config.method,
             headers: parsedHeaders,
-            agent: new https.Agent({
-                rejectUnauthorized: false, // todo: dirty hack, fix
-            }),
         }
 
         let uri
@@ -128,7 +125,16 @@ class TestCase {
             throw e
         }
 
-        const module = uri.protocol === 'https:' ? https : http
+        let module
+        if (uri.protocol === 'https:') {
+            module = https
+            options['agent'] = new https.Agent({
+                rejectUnauthorized: false, // todo: dirty hack, fix
+            })
+        } else {
+            module = http
+        }
+
         const req = module.request(
             uri,
             options,

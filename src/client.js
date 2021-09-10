@@ -39,6 +39,10 @@ class Client
     }
 
     assert(check, errorMessage) {
+        if (this.currentTest === null) {
+            throw new Error('All assertions should be wrapped by test.')
+        }
+
         this.output.push({
             assertion: {
                 name: this.currentTest,
