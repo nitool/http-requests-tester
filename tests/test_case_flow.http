@@ -23,6 +23,7 @@ Accept: text/plain
     client.test('rzeczywisty test, sprawdzam czy wartość została przekazana', function () {
         client.log('test2')
         client.assert(response.status === 400, 'kod nie jest 400')
+        client.assert(response.headers.valueOf('Access-Control-Allow-Credentials') === 'true', 'header test not passed')
     })
 %}
 

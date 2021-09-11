@@ -5,7 +5,7 @@ const os = require('os')
 const http = require('http')
 const https = require('https')
 const vm = require('vm')
-const { Client } = require('./client')
+const { Client, ResponseHeaders } = require('./client')
 const { uuidV4 } = require('./utils')
 const context = vm.createContext({
     client: new Client(),
@@ -106,7 +106,7 @@ const createContentTypeObject = contentType => {
 
     return {
         mimeType: mimeType,
-        charset: charset
+        charset: charset.toUpperCase()
     }
 }
 
@@ -176,7 +176,7 @@ class TestCase {
                         contentType: contentType,
                         status: res.statusCode,
                         body: parsedBody,
-                        headers: res.headers
+                        headers: new ResponseHeaders(res.headers)
                     })
                 })
             })

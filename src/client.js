@@ -24,8 +24,7 @@ class Globals {
     }
 }
 
-class Client 
-{
+class Client {
     constructor() {
         this.global = new Globals()
         this.currentTest = null
@@ -61,5 +60,45 @@ class Client
     }
 }
 
-module.exports = {Client}
+class ResponseHeaders {
+    constructor(headers) {
+        this.headers = {}
+        for (let name in headers) {
+            name = name.toLowerCase()
+            if (!headers.hasOwnProperty(name)) {
+                continue
+            }
+
+            if (!this.headers.hasOwnProperty(name)) {
+                this.headers[name] = []
+            }
+
+            if (Array.isArray(headers[name])) {
+                this.headers[name].concat(headers[name])
+            } else {
+                this.headers[name].push(headers[name])
+            }
+        }
+    }
+
+    valueOf(headerName) {
+        const values = this.valuesOf(headerName)
+        if (values.length > 0) {
+            return values[0]
+        }
+
+        return null
+    }
+
+    valuesOf(headerName) {
+        headerName = headerName.toLowerCase()
+        if (this.headers.hasOwnProperty(headerName)) {
+            return this.headers[headerName]
+        }
+
+        return []
+    }
+}
+
+module.exports = {Client, ResponseHeaders}
 
