@@ -13,6 +13,7 @@ const context = vm.createContext({
     window: undefined
 })
 
+const dotsMaxColumns = Math.floor(process.stdout.columns * 0.4)
 let client = {}
 let dotsColumn = 0
 
@@ -221,7 +222,7 @@ class TestCase {
             }
 
             dotsColumn++
-            if (dotsColumn === 20) {
+            if (dotsColumn === dotsMaxColumns) {
                 dotsColumn = 0
                 process.stdout.write('\n')
             }
