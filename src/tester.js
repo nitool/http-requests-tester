@@ -157,12 +157,14 @@ class TestCase {
                 res.on('data', chunk => body += chunk)
                 res.on('end', () => {
                     let parsedBody = body
-                    let contentType
+                    let contentType = null
                     if (res.headers.hasOwnProperty('content-type')) {
                         contentType = createContentTypeObject(res.headers['content-type'])
                     }
 
-                    if (contentType.mimeType === 'application/json') {
+                    if (contentType !== null 
+                        && contentType.mimeType === 'application/json'
+                    ) {
                         parsedBody = JSON.parse(body)
                     }
 
