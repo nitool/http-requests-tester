@@ -145,6 +145,12 @@ class Parser {
             this.currentTestCase.tests += line.trim() + "\n"
         }
     }
+
+    onClose() {
+        if (Object.keys(this.currentTestCase).length > 0) {
+            this.pipeline.push(this.currentTestCase)
+        }
+    }
 }
 
 module.exports = {

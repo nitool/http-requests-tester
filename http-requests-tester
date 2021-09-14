@@ -34,10 +34,7 @@ rl.on('line', (line) => {
 })
 
 rl.on('close', () => {
-    if (Object.keys(parser.currentTestCase).length > 0) {
-        pipeline.push(parser.currentTestCase)
-    }
-
+    parser.onClose()
     pipeline.finish()
 })
 

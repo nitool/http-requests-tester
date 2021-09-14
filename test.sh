@@ -1,5 +1,10 @@
 #!/bin/bash
 
+npm run test
+if [[ $? -gt 0 ]]; then
+    exit 1
+fi
+
 node http-requests-tester --selected-client test --client-file rest-client.env.json ./tests/functional/test_case_with_variables.http
 node http-requests-tester ./tests/functional/test_case_with_variables.http --selected-client test --client-file rest-client.env.json
 node http-requests-tester ./tests/functional/test_case_flow.http --selected-client test --client-file rest-client.env.json
