@@ -212,11 +212,12 @@ class TestCase {
                 continue
             }
 
+            this.pipeline.assertionsCount++
             if (output.assertion.valid) {
                 process.stdout.write('.')
             } else {
                 process.stdout.write('F')
-                this.pipeline.hasErrors = true
+                this.pipeline.errorsCount++
                 this.pipeline.outputManager.saveErrorToFile({
                     test: this.config,
                     output: output
@@ -246,7 +247,8 @@ class TestCase {
 class TestPipeline {
     constructor(config) {
         this.config = config
-        this.hasErrors = false
+        this.errorsCount = 0
+        this.assertionsCount = 0
         this.initialPromise = new Promise(resolve => resolve())
         this.outputManager = new OutputManager()
         client = config
@@ -267,7 +269,15 @@ class TestPipeline {
         this.initialPromise.finally(() => {
             process.stdout.write('\n\n')
             that.outputManager.purge()
-            process.exit(that.hasErrors)
+
+            process.stdout.write(`Assertions: ${that.assertionsCount}`)
+            if (that.errorsCount > 0) {
+                process.stdout.write(` | Errors: ${that.errorsCount}\n`)
+            } else {
+                process.stdout.write('\n')
+            }
+
+            process.exit(that.errorsCount > 0)
         })
     }
 }
