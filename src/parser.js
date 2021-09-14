@@ -52,6 +52,7 @@ class Parser {
         }
 
         if (this.section !== 'url' 
+            && Object.keys(this.currentTestCase).length > 0
             && sectionsQueries.isTestCaseFinishingLine(line)
         ) {
             const test = Object.assign({}, this.currentTestCase)
