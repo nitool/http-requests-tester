@@ -1,6 +1,6 @@
 {
   "name": "http-requests-tester",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "It's a CLI HTTP tester based on HTTP client and HTTP tests implemented in PHPStorm.",
   "author": "Sebastian Niecikowski <snitool@wp.pl>",
   "license": "ISC",
@@ -12,5 +12,15 @@
   },
   "devDependencies": {
     "jest": "^27.2.0"
-  }
+  },
+  "keywords": [
+      "phpstorm",
+      "http",
+      "https",
+      "test",
+      "tests",
+      "requests",
+      "tester",
+      "jetbrains"
+  ]
 }
