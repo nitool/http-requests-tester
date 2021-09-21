@@ -22,7 +22,7 @@ if (typeof client === 'undefined') {
     throw new Error('Invalid client file or client not selected.')
 }
 
-const pipeline = new TestPipeline(client)
+const pipeline = new TestPipeline(client, options)
 const parser = new Parser(pipeline)
 const rl = readline.createInterface({
     input: fs.createReadStream(filename),
@@ -34,10 +34,7 @@ rl.on('line', (line) => {
 })
 
 rl.on('close', () => {
-    if (Object.keys(parser.currentTestCase).length > 0) {
-        pipeline.push(parser.currentTestCase)
-    }
-
+    parser.onClose()
     pipeline.finish()
 })
 

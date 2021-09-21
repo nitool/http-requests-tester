@@ -28,7 +28,7 @@ Accept: text/plain
 POST http://{{host}}/anything/{anything}
 Accept: application/json
 
-< tests/test_case_with_body_from_file.json
+< tests/functional/test_case_with_body_from_file.json
 
 > {%
     client.global.set('flow_test_1', response.body.json.test)
@@ -75,14 +75,14 @@ Accept: application/json
 POST http://{{host}}/status/400
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
 DELETE http://{{host}}/status/200
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
@@ -149,7 +149,7 @@ Accept: text/plain
 POST http://{{host}}/anything/{anything}
 Accept: application/json
 
-< tests/test_case_with_body_from_file.json
+< tests/functional/test_case_with_body_from_file.json
 
 > {%
     client.global.set('flow_test_1', response.body.json.test)
@@ -196,14 +196,14 @@ Accept: application/json
 POST http://{{host}}/status/400
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
 DELETE http://{{host}}/status/200
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
@@ -270,7 +270,7 @@ Accept: text/plain
 POST http://{{host}}/anything/{anything}
 Accept: application/json
 
-< tests/test_case_with_body_from_file.json
+< tests/functional/test_case_with_body_from_file.json
 
 > {%
     client.global.set('flow_test_1', response.body.json.test)
@@ -317,14 +317,14 @@ Accept: application/json
 POST http://{{host}}/status/400
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
 DELETE http://{{host}}/status/200
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
@@ -391,7 +391,7 @@ Accept: text/plain
 POST http://{{host}}/anything/{anything}
 Accept: application/json
 
-< tests/test_case_with_body_from_file.json
+< tests/functional/test_case_with_body_from_file.json
 
 > {%
     client.global.set('flow_test_1', response.body.json.test)
@@ -438,14 +438,14 @@ Accept: application/json
 POST http://{{host}}/status/400
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
 DELETE http://{{host}}/status/200
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
@@ -512,7 +512,7 @@ Accept: text/plain
 POST http://{{host}}/anything/{anything}
 Accept: application/json
 
-< tests/test_case_with_body_from_file.json
+< tests/functional/test_case_with_body_from_file.json
 
 > {%
     client.global.set('flow_test_1', response.body.json.test)
@@ -559,14 +559,14 @@ Accept: application/json
 POST http://{{host}}/status/400
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
 DELETE http://{{host}}/status/200
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
@@ -633,7 +633,7 @@ Accept: text/plain
 POST http://{{host}}/anything/{anything}
 Accept: application/json
 
-< tests/test_case_with_body_from_file.json
+< tests/functional/test_case_with_body_from_file.json
 
 > {%
     client.global.set('flow_test_1', response.body.json.test)
@@ -680,14 +680,14 @@ Accept: application/json
 POST http://{{host}}/status/400
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
 DELETE http://{{host}}/status/200
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
@@ -754,7 +754,7 @@ Accept: text/plain
 POST http://{{host}}/anything/{anything}
 Accept: application/json
 
-< tests/test_case_with_body_from_file.json
+< tests/functional/test_case_with_body_from_file.json
 
 > {%
     client.global.set('flow_test_1', response.body.json.test)
@@ -801,14 +801,14 @@ Accept: application/json
 POST http://{{host}}/status/400
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
 DELETE http://{{host}}/status/200
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
@@ -875,7 +875,7 @@ Accept: text/plain
 POST http://{{host}}/anything/{anything}
 Accept: application/json
 
-< tests/test_case_with_body_from_file.json
+< tests/functional/test_case_with_body_from_file.json
 
 > {%
     client.global.set('flow_test_1', response.body.json.test)
@@ -922,14 +922,14 @@ Accept: application/json
 POST http://{{host}}/status/400
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
 DELETE http://{{host}}/status/200
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
@@ -996,7 +996,7 @@ Accept: text/plain
 POST http://{{host}}/anything/{anything}
 Accept: application/json
 
-< tests/test_case_with_body_from_file.json
+< tests/functional/test_case_with_body_from_file.json
 
 > {%
     client.global.set('flow_test_1', response.body.json.test)
@@ -1043,14 +1043,14 @@ Accept: application/json
 POST http://{{host}}/status/400
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
 DELETE http://{{host}}/status/200
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
@@ -1117,7 +1117,7 @@ Accept: text/plain
 POST http://{{host}}/anything/{anything}
 Accept: application/json
 
-< tests/test_case_with_body_from_file.json
+< tests/functional/test_case_with_body_from_file.json
 
 > {%
     client.global.set('flow_test_1', response.body.json.test)
@@ -1164,14 +1164,14 @@ Accept: application/json
 POST http://{{host}}/status/400
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
 DELETE http://{{host}}/status/200
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
@@ -1238,7 +1238,7 @@ Accept: text/plain
 POST http://{{host}}/anything/{anything}
 Accept: application/json
 
-< tests/test_case_with_body_from_file.json
+< tests/functional/test_case_with_body_from_file.json
 
 > {%
     client.global.set('flow_test_1', response.body.json.test)
@@ -1285,14 +1285,14 @@ Accept: application/json
 POST http://{{host}}/status/400
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
 DELETE http://{{host}}/status/200
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
@@ -1359,7 +1359,7 @@ Accept: text/plain
 POST http://{{host}}/anything/{anything}
 Accept: application/json
 
-< tests/test_case_with_body_from_file.json
+< tests/functional/test_case_with_body_from_file.json
 
 > {%
     client.global.set('flow_test_1', response.body.json.test)
@@ -1406,14 +1406,14 @@ Accept: application/json
 POST http://{{host}}/status/400
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 
 DELETE http://{{host}}/status/200
 Accept: application/json
 
-> tests/test_case_with_external_script.js
+> tests/functional/test_case_with_external_script.js
 
 ###
 

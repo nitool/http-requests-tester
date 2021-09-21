@@ -27,24 +27,42 @@ class Globals {
 class Client {
     constructor() {
         this.global = new Globals()
-        this.currentTest = null
+        this.currentTestAssertions = []
+        this.currentTestName = null
         this.output = []
     }
 
     test(name, callback) {
-        this.currentTest = name
+        if (typeof name !== 'string' && !name instanceof String) {
+            throw new Error('Name should be string only')
+        }
+
+        if (typeof callback !== 'function') {
+            throw new Error('Callback should be function')
+        }
+
+        this.currentTestAssertions = []
+        this.currentTestName = name
         callback()
-        this.currentTest = null
+        this.currentTestName = null
+
+        if (this.currentTestAssertions.length > 0) {
+            this.output.push({
+                test: {
+                    name: name,
+                    assertions: this.currentTestAssertions,
+                }
+            })
+        }
     }
 
     assert(check, errorMessage) {
-        if (this.currentTest === null) {
+        if (this.currentTestName === null) {
             throw new Error('All assertions should be wrapped by test.')
         }
 
-        this.output.push({
+        this.currentTestAssertions.push({
             assertion: {
-                name: this.currentTest,
                 valid: check,
                 message: check ? null : errorMessage
             }

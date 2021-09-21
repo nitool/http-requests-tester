@@ -7,8 +7,8 @@ const showHelpMessage = () => {
     process.stdout.write('Options:\n')
     process.stdout.write('\t--client-file path_to_file.json - config file with possible clients configs, default rest-client.env.json\n')
     process.stdout.write('\t--selected-client name - each client file can contain multiple clients/configs, this option is required and selects config to use while making request\n')
-    process.stdout.write('\t--help - shows this message\n')
-    process.stdout.write('\t-h - same as --help\n\n')
+    process.stdout.write('\t--help|-h - shows this message\n')
+    process.stdout.write('\t--verbose|-v - show logs, by default only errors are printed out\n')
     process.stdout.write('Scripts returns exit code 0 if all assertions succeeded and 1 if at least one assertion failed.\n')
     process.exit(0)
 }
@@ -24,14 +24,17 @@ const parseOptions = args => {
     let options = {
         'client-file': 'rest-client.env.json',
         'selected-client': '',
-        'test-file': ''
+        'test-file': '',
+        'verbose': false
     }
 
     while (optionsIndex < args.length) {
-        if (args[optionsIndex] === '--help' 
-            || args[optionsIndex] === '-h'
-        ) {
+        if (args[optionsIndex] === '--help' || args[optionsIndex] === '-h') {
             showHelpMessage()
+        } if (args[optionsIndex] === '--verbose' 
+            || args[optionsIndex] === '-v'
+        ) {
+            options['verbose'] = true
         } else if (args[optionsIndex].indexOf('--client-file') > -1) {
             options['client-file'] = extractValue(args, optionsIndex)
         } else if (args[optionsIndex].indexOf('--selected-client') > -1) {

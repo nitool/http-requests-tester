@@ -52,6 +52,7 @@ class Parser {
         }
 
         if (this.section !== 'url' 
+            && Object.keys(this.currentTestCase).length > 0
             && sectionsQueries.isTestCaseFinishingLine(line)
         ) {
             const test = Object.assign({}, this.currentTestCase)
@@ -142,6 +143,12 @@ class Parser {
             }
 
             this.currentTestCase.tests += line.trim() + "\n"
+        }
+    }
+
+    onClose() {
+        if (Object.keys(this.currentTestCase).length > 0) {
+            this.pipeline.push(this.currentTestCase)
         }
     }
 }

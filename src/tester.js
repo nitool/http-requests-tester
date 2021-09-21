@@ -71,13 +71,21 @@ class OutputManager {
 
         fs.appendFileSync(
             path.join(this.tmpDir, this.errorFile),
-            `${error.output.assertion.name} assertion failed for test ${name}\n`
+            `${name} - ${error.output.test.name}\n`
         )
 
-        fs.appendFileSync(
-            path.join(this.tmpDir, this.errorFile),
-            error.output.assertion.message + '\n\n'
-        )
+        for (const element of error.output.test.assertions) {
+            if (element.assertion.valid) {
+                continue
+            }
+
+            fs.appendFileSync(
+                path.join(this.tmpDir, this.errorFile),
+                element.assertion.message + '\n'
+            )
+        }
+
+        fs.appendFileSync(path.join(this.tmpDir, this.errorFile), '\n')
     }
 
     purge() {
@@ -203,20 +211,31 @@ class TestCase {
 
     manageClientOutput(clientOutput) {
         for (const output of clientOutput) {
-            if (typeof output.assertion === 'undefined') {
+            if (typeof output.test === 'undefined'
+                && this.pipeline.options.verbose
+            ) {
                 this.pipeline.outputManager.saveLogToFile({
                     test: this.config,
                     output: output
                 })
 
                 continue
+            } else if (typeof output.test === 'undefined') {
+                continue
             }
 
-            if (output.assertion.valid) {
+            this.pipeline.assertionsCount += output.test.assertions.length
+            const testSucceded = output.test.assertions
+                .map((element) => element.assertion.valid)
+                .reduce((a, b) => {
+                    return a && b
+                })
+
+            if (testSucceded) {
                 process.stdout.write('.')
             } else {
                 process.stdout.write('F')
-                this.pipeline.hasErrors = true
+                this.pipeline.errorsCount++
                 this.pipeline.outputManager.saveErrorToFile({
                     test: this.config,
                     output: output
@@ -244,9 +263,11 @@ class TestCase {
 }
 
 class TestPipeline {
-    constructor(config) {
+    constructor(config, options) {
         this.config = config
-        this.hasErrors = false
+        this.options = options
+        this.errorsCount = 0
+        this.assertionsCount = 0
         this.initialPromise = new Promise(resolve => resolve())
         this.outputManager = new OutputManager()
         client = config
@@ -267,7 +288,15 @@ class TestPipeline {
         this.initialPromise.finally(() => {
             process.stdout.write('\n\n')
             that.outputManager.purge()
-            process.exit(that.hasErrors)
+
+            process.stdout.write(`Assertions: ${that.assertionsCount}`)
+            if (that.errorsCount > 0) {
+                process.stdout.write(` | Errors: ${that.errorsCount}\n`)
+            } else {
+                process.stdout.write('\n')
+            }
+
+            process.exit(that.errorsCount > 0)
         })
     }
 }

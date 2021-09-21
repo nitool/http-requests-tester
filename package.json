@@ -5,6 +5,12 @@
   "author": "Sebastian Niecikowski <snitool@wp.pl>",
   "license": "ISC",
   "bin": {
-      "http-requests-tester": "./http-requests-tester"
+    "http-requests-tester": "./http-requests-tester"
+  },
+  "scripts": {
+      "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^27.2.0"
   }
 }
