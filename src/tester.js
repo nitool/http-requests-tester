@@ -71,13 +71,21 @@ class OutputManager {
 
         fs.appendFileSync(
             path.join(this.tmpDir, this.errorFile),
-            `${error.output.assertion.name} assertion failed for test ${name}\n`
+            `${name} - ${error.output.test.name}\n`
         )
 
-        fs.appendFileSync(
-            path.join(this.tmpDir, this.errorFile),
-            error.output.assertion.message + '\n\n'
-        )
+        for (const element of error.output.test.assertions) {
+            if (element.assertion.valid) {
+                continue
+            }
+
+            fs.appendFileSync(
+                path.join(this.tmpDir, this.errorFile),
+                element.assertion.message + '\n'
+            )
+        }
+
+        fs.appendFileSync(path.join(this.tmpDir, this.errorFile), '\n')
     }
 
     purge() {
@@ -203,17 +211,27 @@ class TestCase {
 
     manageClientOutput(clientOutput) {
         for (const output of clientOutput) {
-            if (typeof output.assertion === 'undefined') {
+            if (typeof output.test === 'undefined'
+                && this.pipeline.options.verbose
+            ) {
                 this.pipeline.outputManager.saveLogToFile({
                     test: this.config,
                     output: output
                 })
 
                 continue
+            } else if (typeof output.test === 'undefined') {
+                continue
             }
 
-            this.pipeline.assertionsCount++
-            if (output.assertion.valid) {
+            this.pipeline.assertionsCount += output.test.assertions.length
+            const testSucceded = output.test.assertions
+                .map((element) => element.assertion.valid)
+                .reduce((a, b) => {
+                    return a && b
+                })
+
+            if (testSucceded) {
                 process.stdout.write('.')
             } else {
                 process.stdout.write('F')
@@ -245,8 +263,9 @@ class TestCase {
 }
 
 class TestPipeline {
-    constructor(config) {
+    constructor(config, options) {
         this.config = config
+        this.options = options
         this.errorsCount = 0
         this.assertionsCount = 0
         this.initialPromise = new Promise(resolve => resolve())
