@@ -2,41 +2,59 @@
 const { format } = require('util')
 const fs = require('fs')
 const readline = require('readline')
-const { parseOptions } = require('./src/options')
+const { parseOptions, showHelpMessage } = require('./src/options')
 const { TestPipeline } = require('./src/tester')
 const { Parser } = require('./src/parser')
 const options = parseOptions(process.argv.slice(2))
 
-// todo: multiple test files in input
-const filename = options['test-file']
-if (filename === '') {
-    throw new Error('Test file does not exist.')
+if (options['test-file'].length === 0) {
+    process.stdout.write('No .http test file selected.\n\n')
+    showHelpMessage(2)
 }
 
-process.stdout.write(format('Running tests for %s file.\n\n', filename))
 const client = JSON.parse(fs.readFileSync(options['client-file'], {
     encoding: 'utf-8'
 }))[options['selected-client']]
 
 if (typeof client === 'undefined') {
-    throw new Error('Invalid client file or client not selected.')
+    process.stdout.write('Invalid client file or client not selected.\n\n')
+    showHelpMessage(3)
 }
 
-const pipeline = new TestPipeline(client, options)
-const parser = new Parser(pipeline)
-const rl = readline.createInterface({
-    input: fs.createReadStream(filename),
-    crlfDelay: Infinity
-})
+const processLineByLine = async () => {
+    const pipeline = new TestPipeline(client, options)
+    const parser = new Parser(pipeline)
+    for (const key in options['test-file']) {
+        if (!options['test-file'].hasOwnProperty(key)) {
+            continue
+        }
 
-rl.on('line', (line) => {
-    parser.processLine(line)
-})
+        const filename = options['test-file'][key]
+        pipeline.initialPromise.then(resolve => {
+            process.stdout.write(format('Running tests for %s file.\n\n', filename))
+            return new Promise(resolve => resolve())
+        })
 
-rl.on('close', () => {
-    parser.onClose()
-    pipeline.finish()
-})
+        const rl = readline.createInterface({
+            input: fs.createReadStream(filename),
+            crlfDelay: Infinity
+        })
+
+
+        for await (const line of rl) {
+            parser.processLine(line)
+        }
+
+        parser.onClose()
+        if (key === options['test-file'] - 1) {
+            pipeline.finish()
+        } else {
+            pipeline.startNewTest()
+        }
+    }
+}
+
+(() => processLineByLine())()
 
 // todo: zapisać response z każdego wykonanego requestu do jakiegoś tmp
 

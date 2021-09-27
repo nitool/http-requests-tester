@@ -33,6 +33,10 @@ GET http://httpbin.org/status/400
 
     parser.onClose()
     expect(pipeline.tests).toHaveLength(2)
+    expect(pipeline.tests[0].noLog).toBe(false)
+    expect(pipeline.tests[0].noRedirect).toBe(false)
+    expect(pipeline.tests[1].noLog).toBe(false)
+    expect(pipeline.tests[1].noRedirect).toBe(false)
     expect(pipeline.tests[0].uri).toBe('http://httpbin.org/status/200')
     expect(pipeline.tests[1].uri).toBe('http://httpbin.org/status/400')
     expect(pipeline.tests[0].method).toBe('GET')
@@ -62,6 +66,70 @@ Content-Type: application/json
     expect(pipeline.tests).toHaveLength(1)
     const testCase = pipeline.tests[0]
     expect(testCase.headers['Content-Type']).toBe('application/json')
+    expect(testCase.noLog).toBe(false)
+    expect(testCase.noRedirect).toBe(false)
+    expect(JSON.parse(testCase.body)).toHaveProperty('exampleField')
+    expect(JSON.parse(testCase.body).exampleField).toBe(10)
+    expect(testCase.tests).toContain("client.assert(response.body.exampleField === 10, 'exampleField')")
+})
+
+test('no log tag', () => {
+    const parser = new Parser(pipeline)
+    const lines = `### Example test
+# @no-log
+POST http://httpbin.org/status/200
+Content-Type: application/json
+
+{
+    "exampleField": 10
+}
+
+> {%
+    client.assert(response.body.exampleField === 10, 'exampleField')
+%}
+`.split('\n')
+
+    lines.forEach(line => {
+        parser.processLine(line)
+    })
+
+    parser.onClose()
+    expect(pipeline.tests).toHaveLength(1)
+    const testCase = pipeline.tests[0]
+    expect(testCase.headers['Content-Type']).toBe('application/json')
+    expect(testCase.noLog).toBe(true)
+    expect(testCase.noRedirect).toBe(false)
+    expect(JSON.parse(testCase.body)).toHaveProperty('exampleField')
+    expect(JSON.parse(testCase.body).exampleField).toBe(10)
+    expect(testCase.tests).toContain("client.assert(response.body.exampleField === 10, 'exampleField')")
+})
+
+test('no redirect tag', () => {
+    const parser = new Parser(pipeline)
+    const lines = `### Example test
+# @no-redirect
+POST http://httpbin.org/status/200
+Content-Type: application/json
+
+{
+    "exampleField": 10
+}
+
+> {%
+    client.assert(response.body.exampleField === 10, 'exampleField')
+%}
+`.split('\n')
+
+    lines.forEach(line => {
+        parser.processLine(line)
+    })
+
+    parser.onClose()
+    expect(pipeline.tests).toHaveLength(1)
+    const testCase = pipeline.tests[0]
+    expect(testCase.headers['Content-Type']).toBe('application/json')
+    expect(testCase.noRedirect).toBe(true)
+    expect(testCase.noLog).toBe(false)
     expect(JSON.parse(testCase.body)).toHaveProperty('exampleField')
     expect(JSON.parse(testCase.body).exampleField).toBe(10)
     expect(testCase.tests).toContain("client.assert(response.body.exampleField === 10, 'exampleField')")

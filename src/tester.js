@@ -98,7 +98,7 @@ class OutputManager {
             fs.unlinkSync(path.join(this.tmpDir, this.errorFile))
         } catch (error) {}
 
-        fs.rmdirSync(this.tmpDir, {
+        fs.rmSync(this.tmpDir, {
             recursive: true,
             force: true
         })
@@ -124,7 +124,12 @@ class TestCase {
         this.pipeline = pipeline
     }
 
-    makeRequest(resolve, reject) {
+    makeRequest(resolve, reject, configOverride) {
+        if (typeof configOverride === 'undefined') {
+            configOverride = {}
+        }
+
+        const that = this
         let parsedHeaders = {}
         for (const header in this.config.headers) {
             if (!this.config.headers.hasOwnProperty(header)) {
@@ -141,7 +146,11 @@ class TestCase {
 
         let uri
         try {
-            uri = new URL(applyClientVariable(this.config.uri))
+            if (typeof configOverride.url !== 'undefined') {
+                uri = new URL(applyClientVariable(configOverride.url))
+            } else {
+                uri = new URL(applyClientVariable(this.config.uri))
+            }
         } catch (e) {
             console.log(this.config)
             throw e
@@ -161,6 +170,14 @@ class TestCase {
             uri,
             options,
             (res) => {
+                if (!this.config.noRedirect 
+                    && (res.statusCode === 301 || res.statusCode === 302)
+                ) {
+                    that.makeRequest(resolve, reject, {
+                        url: res.headers.location
+                    })
+                }
+
                 let body = ''
                 res.on('data', chunk => body += chunk)
                 res.on('end', () => {
@@ -270,6 +287,7 @@ class TestPipeline {
         this.assertionsCount = 0
         this.initialPromise = new Promise(resolve => resolve())
         this.outputManager = new OutputManager()
+        this.finishWithError = false
         client = config
     }
 
@@ -283,20 +301,33 @@ class TestPipeline {
             })
     }
 
+    cleanup() {
+        process.stdout.write('\n\n')
+        this.outputManager.purge()
+
+        process.stdout.write(`Assertions: ${this.assertionsCount}`)
+        if (this.errorsCount > 0) {
+            process.stdout.write(` | Errors: ${this.errorsCount}\n`)
+        } else {
+            process.stdout.write('\n')
+        }
+
+        this.errorsCount = 0
+        this.assertionsCount = 0
+        this.finishWithError = this.errorsCount > 0
+        this.outputManager = new OutputManager()
+    }
+
+    startNewTest() {
+        const that = this
+        this.initialPromise.then(() => that.cleanup())
+    }
+
     finish() {
         const that = this
         this.initialPromise.finally(() => {
-            process.stdout.write('\n\n')
-            that.outputManager.purge()
-
-            process.stdout.write(`Assertions: ${that.assertionsCount}`)
-            if (that.errorsCount > 0) {
-                process.stdout.write(` | Errors: ${that.errorsCount}\n`)
-            } else {
-                process.stdout.write('\n')
-            }
-
-            process.exit(that.errorsCount > 0)
+            that.cleanup()
+            process.exit(that.finishWithError)
         })
     }
 }
