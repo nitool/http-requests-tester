@@ -150,6 +150,8 @@ class Parser {
         if (Object.keys(this.currentTestCase).length > 0) {
             this.pipeline.push(this.currentTestCase)
         }
+
+        this.currentTestCase = {}
     }
 }
 

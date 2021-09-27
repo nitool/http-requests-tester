@@ -1,4 +1,8 @@
-const showHelpMessage = () => {
+const showHelpMessage = exitCode => {
+    if (typeof exitCode === 'undefined') {
+        exitCode = 0
+    }
+
     process.stdout.write('HTTP Request Tester\n\n')
     process.stdout.write('Based on HTTP client and HTTP tests implemented in PHPStorm.\n\n')
     process.stdout.write('Resources:\n')
@@ -10,7 +14,7 @@ const showHelpMessage = () => {
     process.stdout.write('\t--help|-h - shows this message\n')
     process.stdout.write('\t--verbose|-v - show logs, by default only errors are printed out\n')
     process.stdout.write('Scripts returns exit code 0 if all assertions succeeded and 1 if at least one assertion failed.\n')
-    process.exit(0)
+    process.exit(exitCode)
 }
 
 const extractValue = (args, optionsIndex) => {
@@ -24,7 +28,7 @@ const parseOptions = args => {
     let options = {
         'client-file': 'rest-client.env.json',
         'selected-client': '',
-        'test-file': '',
+        'test-file': [],
         'verbose': false
     }
 
@@ -40,7 +44,7 @@ const parseOptions = args => {
         } else if (args[optionsIndex].indexOf('--selected-client') > -1) {
             options['selected-client'] = extractValue(args, optionsIndex)
         } else if (args[optionsIndex].indexOf('.http') > -1) {
-            options['test-file'] = args[optionsIndex].trim()
+            options['test-file'].push(args[optionsIndex].trim())
         }
 
         optionsIndex++
