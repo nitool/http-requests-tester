@@ -124,7 +124,12 @@ class TestCase {
         this.pipeline = pipeline
     }
 
-    makeRequest(resolve, reject) {
+    makeRequest(resolve, reject, configOverride) {
+        if (typeof configOverride === 'undefined') {
+            configOverride = {}
+        }
+
+        const that = this
         let parsedHeaders = {}
         for (const header in this.config.headers) {
             if (!this.config.headers.hasOwnProperty(header)) {
@@ -141,7 +146,11 @@ class TestCase {
 
         let uri
         try {
-            uri = new URL(applyClientVariable(this.config.uri))
+            if (typeof configOverride.url !== 'undefined') {
+                uri = new URL(applyClientVariable(configOverride.url))
+            } else {
+                uri = new URL(applyClientVariable(this.config.uri))
+            }
         } catch (e) {
             console.log(this.config)
             throw e
@@ -161,6 +170,14 @@ class TestCase {
             uri,
             options,
             (res) => {
+                if (!this.config.noRedirect 
+                    && (res.statusCode === 301 || res.statusCode === 302)
+                ) {
+                    that.makeRequest(resolve, reject, {
+                        url: res.headers.location
+                    })
+                }
+
                 let body = ''
                 res.on('data', chunk => body += chunk)
                 res.on('end', () => {

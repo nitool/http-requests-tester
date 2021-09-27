@@ -28,6 +28,8 @@ const sectionsQueries = {
     isTestsSectionStart: line => /^> \{%$/.test(line.trim()),
     isTestsSectionFile: line => /> ([0-9A-Za-z\/_.]*)$/.test(line.trim()),
     isTestCaseNameLine: line => /^([/]|[#]{1,3})(\s+)?\w/.test(line),
+    isNoLogLine: line => /^([/]|[#]{1,3})(\s+)?(@no-log)/.test(line),
+    isNoRedirectLine: line => /^([/]|[#]{1,3})(\s+)?(@no-redirect)/.test(line),
     isTestCaseTargetLine: line => /^(GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)\s+/.test(line),
     isTestsSectionContent: (line, parser) => {
         return !/^> \{%$/.test(line.trim())
@@ -55,6 +57,8 @@ class Parser {
             && Object.keys(this.currentTestCase).length > 0
             && sectionsQueries.isTestCaseFinishingLine(line)
         ) {
+            this.currentTestCase.noRedirect = this.currentTestCase.noRedirect ?? false
+            this.currentTestCase.noLog = this.currentTestCase.noLog ?? false
             const test = Object.assign({}, this.currentTestCase)
             this.pipeline.push(test)
             this.currentTestCase = {}
@@ -63,6 +67,16 @@ class Parser {
 
         if (sectionsQueries.isTestCaseNameLine(line)) {
             this.currentTestCase.name = line.replace(/^([/]|[#]{1,3})(\s+)?/, '').trim()
+            return
+        }
+
+        if (sectionsQueries.isNoRedirectLine(line)) {
+            this.currentTestCase.noRedirect = true
+            return
+        }
+
+        if (sectionsQueries.isNoLogLine(line)) {
+            this.currentTestCase.noLog = true
             return
         }
 
@@ -148,6 +162,8 @@ class Parser {
 
     onClose() {
         if (Object.keys(this.currentTestCase).length > 0) {
+            this.currentTestCase.noRedirect = this.currentTestCase.noRedirect ?? false
+            this.currentTestCase.noLog = this.currentTestCase.noLog ?? false
             this.pipeline.push(this.currentTestCase)
         }
 
