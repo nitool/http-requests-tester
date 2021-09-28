@@ -207,6 +207,8 @@ class TestCase {
                     that.makeRequest(resolve, reject, {
                         url: res.headers.location
                     })
+
+                    return
                 }
 
                 let body = ''
@@ -241,10 +243,13 @@ class TestCase {
         if (typeof this.config.body !== 'undefined') {
             let parsedBody = applyClientVariable(this.config.body).split('\n')
             parsedBody.splice(-1)
-            for (let i = parsedBody.length - 1; i > 0; i--) {
+            for (let i = parsedBody.length - 1; i >= 0; i--) {
                 if (parsedBody[i] === '') {
-                    parsedBody.splice(-1)
+                    parsedBody.splice(i, 1)
+                    continue
                 }
+
+                break
             }
 
             req.write(parsedBody.join('\n'))
@@ -356,7 +361,7 @@ class TestPipeline {
             process.stdout.write(` | Failed tests: ${this.failedTestsCount}`)
         } 
 
-        if (this.failedTestsCount > 0) {
+        if (this.errorsCount > 0) {
             process.stdout.write(` | Errors: ${this.errorsCount}\n`)
         } else {
             process.stdout.write('\n')
