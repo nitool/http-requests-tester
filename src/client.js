@@ -43,17 +43,26 @@ class Client {
 
         this.currentTestAssertions = []
         this.currentTestName = name
-        callback()
-        this.currentTestName = null
-
-        if (this.currentTestAssertions.length > 0) {
+        try {
+            callback()
+            if (this.currentTestAssertions.length > 0) {
+                this.output.push({
+                    test: {
+                        name: name,
+                        assertions: this.currentTestAssertions,
+                    }
+                })
+            }
+        } catch (error) {
             this.output.push({
                 test: {
                     name: name,
-                    assertions: this.currentTestAssertions,
+                    error: error,
                 }
             })
         }
+
+        this.currentTestName = null
     }
 
     assert(check, errorMessage) {

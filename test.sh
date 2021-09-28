@@ -16,4 +16,5 @@ node http-requests-tester ./tests/functional/test_case_with_form_data.http --sel
 node http-requests-tester ./tests/functional/test_case_heavy.http --selected-client test --client-file rest-client.env.json
 node http-requests-tester ./tests/functional/test_case_annotations.http --selected-client test --client-file rest-client.env.json
 node http-requests-tester --selected-client test ./tests/functional/test_case_flow.http ./tests/functional/test_case_flow_2.http
+node http-requests-tester --selected-client test ./tests/functional/test_case_with_errors.http
 

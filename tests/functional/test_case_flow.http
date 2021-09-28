@@ -29,3 +29,17 @@ Accept: text/plain
     })
 %}
 
+###
+
+// Testowy request
+POST http://{{host}}/anything/{anything}
+Accept: application/json
+
+[]
+
+> {%
+    client.test('rzeczywisty test, wymagam pustego arraya', function () {
+        client.assert(Array.isArray(response.body.json), 'nie jest arrayem')
+    })
+%}
+

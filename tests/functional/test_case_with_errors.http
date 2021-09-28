@@ -1,0 +1,21 @@
+// testowy request z błędem w teście
+POST http://{{host}}/status/200
+Accept: text/plain
+
+> {%
+    client.test('rzeczywisty test, nieistniejąca zmienna', function () {
+        client.assert(aasdasda, 'nie istnieje')
+    })
+%}
+
+###
+
+// testowy request z nieistniejącą zmienną
+POST http://{{ host }}/status/{{ nieistniejaca_zmienna }}
+Accept: text/plain
+
+> {%
+    client.test('rzeczywisty test, nieistniejąca zmienna', function () {
+        client.assert(true, 'false')
+    })
+%}

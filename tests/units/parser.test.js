@@ -135,5 +135,28 @@ Content-Type: application/json
     expect(testCase.tests).toContain("client.assert(response.body.exampleField === 10, 'exampleField')")
 })
 
+test('empty array as input', () => {
+    const parser = new Parser(pipeline)
+    const lines = `// testowy komentarz
+POST http://httpbin.org/status/200
+Content-Type: application/json
+
+[]
+`.split('\n')
+
+    lines.forEach(line => {
+        parser.processLine(line)
+    })
+
+    parser.onClose()
+    expect(pipeline.tests).toHaveLength(1)
+    const testCase = pipeline.tests[0]
+    expect(testCase.name).toBe('testowy komentarz')
+    expect(testCase.headers['Content-Type']).toBe('application/json')
+    expect(testCase.noRedirect).toBe(false)
+    expect(testCase.noLog).toBe(false)
+    expect(JSON.parse(testCase.body)).toStrictEqual([])
+})
+
 // todo: write more test cases
 
