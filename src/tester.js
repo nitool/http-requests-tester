@@ -63,18 +63,18 @@ class OutputManager {
         )
     }
 
-    async saveErrorToFile(error) {
-        let name = error.test.name
+    async saveFailedAssertionsToFile(input) {
+        let name = input.test.name
         if (typeof name === 'undefined') {
-            name = format('%s %s', error.test.method, error.test.uri)
+            name = format('%s %s', input.test.method, input.test.uri)
         }
 
         fs.appendFileSync(
             path.join(this.tmpDir, this.errorFile),
-            `${name} - ${error.output.test.name}\n`
+            `${name} - ${input.output.test.name}\n`
         )
 
-        for (const element of error.output.test.assertions) {
+        for (const element of input.output.test.assertions) {
             if (element.assertion.valid) {
                 continue
             }
@@ -84,6 +84,25 @@ class OutputManager {
                 element.assertion.message + '\n'
             )
         }
+
+        fs.appendFileSync(path.join(this.tmpDir, this.errorFile), '\n')
+    }
+
+    async saveErrorToFile(input) {
+        let name = input.test.name
+        if (typeof name === 'undefined') {
+            name = format('%s %s', input.test.method, input.test.uri)
+        }
+
+        fs.appendFileSync(
+            path.join(this.tmpDir, this.errorFile),
+            `${name} - ${input.output.test.name}\n`
+        )
+
+        fs.appendFileSync(
+            path.join(this.tmpDir, this.errorFile),
+            input.output.test.error.message + '\n'
+        )
 
         fs.appendFileSync(path.join(this.tmpDir, this.errorFile), '\n')
     }
@@ -151,9 +170,21 @@ class TestCase {
             } else {
                 uri = new URL(applyClientVariable(this.config.uri))
             }
-        } catch (e) {
-            console.log(this.config)
-            throw e
+        } catch (error) {
+            this.config.tests = undefined
+            context.client.output.push({
+                test: {
+                    name: 'undefined variable',
+                    error: error,
+                }
+            })
+
+            resolve({
+                contentType: null,
+                status: null,
+                body: null,
+                headers: new ResponseHeaders([])
+            })
         }
 
         let module
@@ -226,6 +257,26 @@ class TestCase {
         return new Promise(this.makeRequest.bind(this))
     }
 
+    manageTestOutput(output) {
+        this.pipeline.assertionsCount += output.test.assertions.length
+        const testSucceded = output.test.assertions
+            .map((element) => element.assertion.valid)
+            .reduce((a, b) => {
+                return a && b
+            })
+
+        if (testSucceded) {
+            process.stdout.write('.')
+        } else {
+            process.stdout.write('F')
+            this.pipeline.failedTestsCount++
+            this.pipeline.outputManager.saveFailedAssertionsToFile({
+                test: this.config,
+                output: output
+            })
+        }
+    }
+
     manageClientOutput(clientOutput) {
         for (const output of clientOutput) {
             if (typeof output.test === 'undefined'
@@ -241,22 +292,15 @@ class TestCase {
                 continue
             }
 
-            this.pipeline.assertionsCount += output.test.assertions.length
-            const testSucceded = output.test.assertions
-                .map((element) => element.assertion.valid)
-                .reduce((a, b) => {
-                    return a && b
-                })
-
-            if (testSucceded) {
-                process.stdout.write('.')
-            } else {
-                process.stdout.write('F')
+            if (typeof output.test.error !== 'undefined') {
+                process.stdout.write('E')
                 this.pipeline.errorsCount++
                 this.pipeline.outputManager.saveErrorToFile({
                     test: this.config,
                     output: output
                 })
+            } else {
+                this.manageTestOutput(output)
             }
 
             dotsColumn++
@@ -283,6 +327,7 @@ class TestPipeline {
     constructor(config, options) {
         this.config = config
         this.options = options
+        this.failedTestsCount = 0
         this.errorsCount = 0
         this.assertionsCount = 0
         this.initialPromise = new Promise(resolve => resolve())
@@ -306,15 +351,21 @@ class TestPipeline {
         this.outputManager.purge()
 
         process.stdout.write(`Assertions: ${this.assertionsCount}`)
-        if (this.errorsCount > 0) {
+
+        if (this.failedTestsCount > 0) {
+            process.stdout.write(` | Failed tests: ${this.failedTestsCount}`)
+        } 
+
+        if (this.failedTestsCount > 0) {
             process.stdout.write(` | Errors: ${this.errorsCount}\n`)
         } else {
             process.stdout.write('\n')
         }
 
+        this.failedTestsCount = 0
         this.errorsCount = 0
         this.assertionsCount = 0
-        this.finishWithError = this.errorsCount > 0
+        this.finishWithError = this.failedTestsCount > 0 || this.errorsCount > 0
         this.outputManager = new OutputManager()
     }
 

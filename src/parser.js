@@ -27,9 +27,9 @@ const sectionsQueries = {
     isTestCaseFinishingLine: line => /^###/.test(line.trim()),
     isTestsSectionStart: line => /^> \{%$/.test(line.trim()),
     isTestsSectionFile: line => /> ([0-9A-Za-z\/_.]*)$/.test(line.trim()),
-    isTestCaseNameLine: line => /^([/]|[#]{1,3})(\s+)?\w/.test(line),
-    isNoLogLine: line => /^([/]|[#]{1,3})(\s+)?(@no-log)/.test(line),
-    isNoRedirectLine: line => /^([/]|[#]{1,3})(\s+)?(@no-redirect)/.test(line),
+    isTestCaseNameLine: line => /^([/]{2}|[#]{1,3})(\s+)?\w/.test(line),
+    isNoLogLine: line => /^([/]{2}|[#]{1,3})(\s+)?(@no-log)/.test(line),
+    isNoRedirectLine: line => /^([/]{2}|[#]{1,3})(\s+)?(@no-redirect)/.test(line),
     isTestCaseTargetLine: line => /^(GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)\s+/.test(line),
     isTestsSectionContent: (line, parser) => {
         return !/^> \{%$/.test(line.trim())
@@ -66,7 +66,7 @@ class Parser {
         }
 
         if (sectionsQueries.isTestCaseNameLine(line)) {
-            this.currentTestCase.name = line.replace(/^([/]|[#]{1,3})(\s+)?/, '').trim()
+            this.currentTestCase.name = line.replace(/^([/]{2}|[#]{1,3})(\s+)?/, '').trim()
             return
         }
 
