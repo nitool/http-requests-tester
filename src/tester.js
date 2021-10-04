@@ -178,7 +178,9 @@ class TestCase {
                 uriString = applyClientVariable(this.config.uri)
             }
 
-            if (this.config.method === 'GET') {
+            if (typeof this.config.body !== 'undefined'
+                && this.config.method === 'GET'
+            ) {
                 let searchParams = new URLSearchParams(this.config.body.replace(/[\n]/g, ''))
                 try {
                     searchParams = new URLSearchParams(JSON.parse(this.config.body.replace(/[\n]/g, '')))
