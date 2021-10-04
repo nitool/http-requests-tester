@@ -155,6 +155,12 @@ class TestCase {
                 continue
             }
 
+            if (header.toLowerCase() === 'content-type' 
+                && this.config.method === 'GET'
+            ) {
+                continue;
+            }
+
             parsedHeaders[header] = applyClientVariable(this.config.headers[header])
         }
 
@@ -165,10 +171,24 @@ class TestCase {
 
         let uri
         try {
+            let uriString
             if (typeof configOverride.url !== 'undefined') {
-                uri = new URL(applyClientVariable(configOverride.url))
+                uriString = applyClientVariable(configOverride.url)
             } else {
-                uri = new URL(applyClientVariable(this.config.uri))
+                uriString = applyClientVariable(this.config.uri)
+            }
+
+            if (this.config.method === 'GET') {
+                let searchParams = new URLSearchParams(this.config.body.replace(/[\n]/g, ''))
+                try {
+                    searchParams = new URLSearchParams(JSON.parse(this.config.body.replace(/[\n]/g, '')))
+                } catch (e) {
+                    searchParams = new URLSearchParams(this.config.body.replace(/[\n]/g, ''))
+                }
+
+                uri = new URL(uriString + '?' + searchParams.toString())
+            } else {
+                uri = new URL(uriString)
             }
         } catch (error) {
             this.config.tests = undefined
@@ -240,7 +260,9 @@ class TestCase {
             })
 
         req.on('error', reject)
-        if (typeof this.config.body !== 'undefined') {
+        if (typeof this.config.body !== 'undefined'
+            && this.config.method !== 'GET'
+        ) {
             let parsedBody = applyClientVariable(this.config.body).split('\n')
             parsedBody.splice(-1)
             for (let i = parsedBody.length - 1; i >= 0; i--) {
