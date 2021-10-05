@@ -7,7 +7,6 @@ const https = require('https')
 const vm = require('vm')
 const { Client, ResponseHeaders } = require('./client')
 const { uuidV4 } = require('./utils')
-const {parse} = require('path')
 const context = vm.createContext({
     client: new Client(),
     console: undefined,
