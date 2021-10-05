@@ -19,3 +19,16 @@ Accept: text/plain
         client.assert(true, 'false')
     })
 %}
+
+###
+
+// testowy request z nieistniejącą zmienną
+POST http://{{ host }}/status/200
+Accept: text/plain
+Authorization: Bearer {{nieistniejaca_zmienna}}
+
+> {%
+    client.test('rzeczywisty test, nieistniejąca zmienna', function () {
+        client.assert(true, 'false')
+    })
+%}
