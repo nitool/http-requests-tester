@@ -7,6 +7,7 @@ const https = require('https')
 const vm = require('vm')
 const { Client, ResponseHeaders } = require('./client')
 const { uuidV4 } = require('./utils')
+const {parse} = require('path')
 const context = vm.createContext({
     client: new Client(),
     console: undefined,
@@ -143,12 +144,7 @@ class TestCase {
         this.pipeline = pipeline
     }
 
-    makeRequest(resolve, reject, configOverride) {
-        if (typeof configOverride === 'undefined') {
-            configOverride = {}
-        }
-
-        const that = this
+    getParsedHeaders() {
         let parsedHeaders = {}
         for (const header in this.config.headers) {
             if (!this.config.headers.hasOwnProperty(header)) {
@@ -162,6 +158,37 @@ class TestCase {
             }
 
             parsedHeaders[header] = applyClientVariable(this.config.headers[header])
+        }
+
+        return parsedHeaders
+    }
+
+    makeRequest(resolve, reject, configOverride) {
+        if (typeof configOverride === 'undefined') {
+            configOverride = {}
+        }
+
+        const that = this
+        let parsedHeaders = {}
+        try {
+            parsedHeaders = this.getParsedHeaders()
+        } catch (error) {
+            this.config.tests = undefined
+            context.client.output.push({
+                test: {
+                    name: 'undefined variable',
+                    error: error,
+                }
+            })
+
+            resolve({
+                contentType: null,
+                status: null,
+                body: null,
+                headers: new ResponseHeaders([])
+            })
+
+            return
         }
 
         let options = {
@@ -180,6 +207,7 @@ class TestCase {
 
             if (typeof this.config.body !== 'undefined'
                 && this.config.method === 'GET'
+                && uriString.indexOf('?') > -1
             ) {
                 let searchParams = new URLSearchParams(this.config.body.replace(/[\n]/g, ''))
                 try {
@@ -207,6 +235,8 @@ class TestCase {
                 body: null,
                 headers: new ResponseHeaders([])
             })
+            
+            return
         }
 
         let module
@@ -391,10 +421,13 @@ class TestPipeline {
             process.stdout.write('\n')
         }
 
+        this.finishWithError = this.finishWithError 
+            || this.failedTestsCount > 0 
+            || this.errorsCount > 0
+
         this.failedTestsCount = 0
         this.errorsCount = 0
         this.assertionsCount = 0
-        this.finishWithError = this.failedTestsCount > 0 || this.errorsCount > 0
         this.outputManager = new OutputManager()
     }
 

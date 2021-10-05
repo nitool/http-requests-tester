@@ -46,7 +46,7 @@ const processLineByLine = async () => {
         }
 
         parser.onClose()
-        if (key === options['test-file'] - 1) {
+        if (parseInt(key) === options['test-file'].length - 1) {
             pipeline.finish()
         } else {
             pipeline.startNewTest()
