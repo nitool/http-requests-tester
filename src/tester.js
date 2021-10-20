@@ -206,16 +206,16 @@ class TestCase {
 
             if (typeof this.config.body !== 'undefined'
                 && this.config.method === 'GET'
-                && uriString.indexOf('?') > -1
             ) {
-                let searchParams = new URLSearchParams(this.config.body.replace(/[\n]/g, ''))
+                let searchParams
                 try {
                     searchParams = new URLSearchParams(JSON.parse(this.config.body.replace(/[\n]/g, '')))
                 } catch (e) {
                     searchParams = new URLSearchParams(this.config.body.replace(/[\n]/g, ''))
                 }
 
-                uri = new URL(uriString + '?' + searchParams.toString())
+                const separator = uriString.indexOf('?') > -1 ? '&' : '?';
+                uri = new URL(uriString + separator+ searchParams.toString())
             } else {
                 uri = new URL(uriString)
             }
