@@ -101,7 +101,7 @@ class ResponseHeaders {
             }
 
             if (Array.isArray(headers[name])) {
-                this.headers[name].concat(headers[name])
+                this.headers[name] = this.headers[name].concat(headers[name])
             } else {
                 this.headers[name].push(headers[name])
             }
