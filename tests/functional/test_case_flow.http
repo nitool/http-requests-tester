@@ -15,9 +15,27 @@ Accept: application/json
     })
 %}
 
+### Testowa nazwa drugiego requestu
+GET http://{{host}}/anything/{anything}
+Accept: application/json
+
+{
+    "test": 400,
+    "lastIdentifier": {{flow_test_1}}
+}
+
+> {%
+    client.test('rzeczywisty test, ma zwracać 200', function () {
+        client.assert(response.status === 200, 'kod nie jest 200')
+        client.assert(response.body.args.test == 400, 'kod nie jest 400')
+        client.assert(response.body.args.lastIdentifier == client.global.get('flow_test_1'), 'źle przekazane lastIdentifier, ' + response.body.args.lastIdentifier)
+        client.assert(response.contentType.mimeType === 'application/json', 'missing mime type')
+    })
+%}
+
 ###
 
-### Testowa nazwa drugiego requestu
+### Testowa nazwa trzeciego requestu
 POST http://{{host}}/status/{{ flow_test_1 }}
 Accept: text/plain
 

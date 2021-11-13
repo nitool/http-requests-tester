@@ -7,6 +7,7 @@ const https = require('https')
 const vm = require('vm')
 const { Client, ResponseHeaders } = require('./client')
 const { uuidV4 } = require('./utils')
+const {parse} = require('path')
 const context = vm.createContext({
     client: new Client(),
     console: undefined,
@@ -208,14 +209,15 @@ class TestCase {
                 && this.config.method === 'GET'
             ) {
                 let searchParams
+                let body = applyClientVariable(this.config.body.replace(/[\n]/g, ''))
                 try {
-                    searchParams = new URLSearchParams(JSON.parse(this.config.body.replace(/[\n]/g, '')))
+                    searchParams = new URLSearchParams(JSON.parse(body))
                 } catch (e) {
-                    searchParams = new URLSearchParams(this.config.body.replace(/[\n]/g, ''))
+                    searchParams = new URLSearchParams(body)
                 }
 
                 const separator = uriString.indexOf('?') > -1 ? '&' : '?';
-                uri = new URL(uriString + separator+ searchParams.toString())
+                uri = new URL(uriString + separator + searchParams.toString())
             } else {
                 uri = new URL(uriString)
             }
