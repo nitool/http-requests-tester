@@ -32,3 +32,18 @@ Authorization: Bearer {{nieistniejaca_zmienna}}
         client.assert(true, 'false')
     })
 %}
+
+### Testowa nazwa drugiego requestu
+POST http://{{host}}/anything/{anything}
+Accept: application/json
+
+{
+    "test": 400,
+    "lastIdentifier": {{flow_test_1}}
+}
+
+> {%
+    client.test('rzeczywisty test, nieistniejąca zmienna', function () {
+        client.assert(true, 'false')
+    })
+%}

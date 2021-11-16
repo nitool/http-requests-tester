@@ -296,7 +296,28 @@ class TestCase {
         if (typeof this.config.body !== 'undefined'
             && this.config.method !== 'GET'
         ) {
-            let parsedBody = applyClientVariable(this.config.body).split('\n')
+            let parsedBody
+            try {
+                parsedBody = applyClientVariable(this.config.body).split('\n')
+            } catch (error) {
+                this.config.tests = undefined
+                context.client.output.push({
+                    test: {
+                        name: 'undefined variable',
+                        error: error,
+                    }
+                })
+
+                resolve({
+                    contentType: null,
+                    status: null,
+                    body: null,
+                    headers: new ResponseHeaders([])
+                })
+                
+                return
+            }
+
             parsedBody.splice(-1)
             for (let i = parsedBody.length - 1; i >= 0; i--) {
                 if (parsedBody[i] === '') {
