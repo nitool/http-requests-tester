@@ -6,45 +6,9 @@ const http = require('http')
 const https = require('https')
 const vm = require('vm')
 const { Client, ResponseHeaders } = require('./client')
-const { uuidV4 } = require('./utils')
-const {parse} = require('path')
-const context = vm.createContext({
-    client: new Client(),
-    console: undefined,
-    window: undefined
-})
-
+const { Context } = require('./context')
 const dotsMaxColumns = Math.floor(process.stdout.columns * 0.4)
-let client = {}
 let dotsColumn = 0
-
-const applyClientVariable = text => {
-    const matches = text.match(/({{(\s+)?[$0-9A-Za-z\-_]+(\s+)?}})/g)
-    if (matches === null) {
-        return text
-    }
-
-    context.client.global.set('$uuid', uuidV4())
-    context.client.global.set('$timestamp', Math.floor(Date.now() / 1000))
-    context.client.global.set('$randomInt', Math.floor(Math.random() * 1000))
-    for (const variablePattern of matches) {
-        const variable = variablePattern.replace(/[{}]/g, '').trim()
-        let value;
-        if (typeof context.client.global.get(variable) !== 'undefined') {
-            value = context.client.global.get(variable)
-        } else {
-            value = client[variable]
-        }
-
-        if (typeof value === 'undefined') {
-            throw new Error(format('missing variable %s', variable))
-        }
-
-        text = text.replace(variablePattern, value)
-    }
-
-    return text
-}
 
 class OutputManager {
     constructor() {
@@ -157,7 +121,7 @@ class TestCase {
                 continue;
             }
 
-            parsedHeaders[header] = applyClientVariable(this.config.headers[header])
+            parsedHeaders[header] = this.pipeline.context.applyClientVariable(this.config.headers[header])
         }
 
         return parsedHeaders
@@ -174,7 +138,7 @@ class TestCase {
             parsedHeaders = this.getParsedHeaders()
         } catch (error) {
             this.config.tests = undefined
-            context.client.output.push({
+            this.pipeline.context.getVmContext().client.output.push({
                 test: {
                     name: 'undefined variable',
                     error: error,
@@ -200,16 +164,16 @@ class TestCase {
         try {
             let uriString
             if (typeof configOverride.url !== 'undefined') {
-                uriString = applyClientVariable(configOverride.url)
+                uriString = this.pipeline.context.applyClientVariable(configOverride.url)
             } else {
-                uriString = applyClientVariable(this.config.uri)
+                uriString = this.pipeline.context.applyClientVariable(this.config.uri)
             }
 
             if (typeof this.config.body !== 'undefined'
                 && this.config.method === 'GET'
             ) {
                 let searchParams
-                let body = applyClientVariable(this.config.body.replace(/[\n]/g, ''))
+                let body = this.pipeline.context.applyClientVariable(this.config.body.replace(/[\n]/g, ''))
                 try {
                     searchParams = new URLSearchParams(JSON.parse(body))
                 } catch (e) {
@@ -223,7 +187,7 @@ class TestCase {
             }
         } catch (error) {
             this.config.tests = undefined
-            context.client.output.push({
+            this.pipeline.context.getVmContext().client.output.push({
                 test: {
                     name: 'undefined variable',
                     error: error,
@@ -298,10 +262,10 @@ class TestCase {
         ) {
             let parsedBody
             try {
-                parsedBody = applyClientVariable(this.config.body).split('\n')
+                parsedBody = this.pipeline.context.applyClientVariable(this.config.body).split('\n')
             } catch (error) {
                 this.config.tests = undefined
-                context.client.output.push({
+                this.pipeline.context.getVmContext().client.output.push({
                     test: {
                         name: 'undefined variable',
                         error: error,
@@ -393,13 +357,13 @@ class TestCase {
     }
 
     testResponse(response) {
-        context.response = response
+        this.pipeline.context.getVmContext().response = response
         if (typeof this.config.tests !== 'undefined') {
-            vm.runInContext(this.config.tests, context)
+            vm.runInContext(this.config.tests, this.pipeline.context.getVmContext())
         }
 
-        this.manageClientOutput(context.client.output)
-        context.client.output = []
+        this.manageClientOutput(this.pipeline.context.getVmContext().client.output)
+        this.pipeline.context.getVmContext().client.output = []
     }
 
 }
@@ -414,7 +378,8 @@ class TestPipeline {
         this.initialPromise = new Promise(resolve => resolve())
         this.outputManager = new OutputManager()
         this.finishWithError = false
-        client = config
+        this.context = new Context(new Client())
+        this.context.setClientConfig(config)
     }
 
     push(test) {
@@ -443,6 +408,7 @@ class TestPipeline {
             process.stdout.write('\n')
         }
 
+        process.stdout.write('\n')
         this.finishWithError = this.finishWithError 
             || this.failedTestsCount > 0 
             || this.errorsCount > 0

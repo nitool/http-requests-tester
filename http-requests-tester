@@ -40,7 +40,6 @@ const processLineByLine = async () => {
             crlfDelay: Infinity
         })
 
-
         for await (const line of rl) {
             parser.processLine(line)
         }
@@ -55,6 +54,4 @@ const processLineByLine = async () => {
 }
 
 (() => processLineByLine())()
-
-// todo: zapisać response z każdego wykonanego requestu do jakiegoś tmp
 
