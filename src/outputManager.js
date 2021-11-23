@@ -1,3 +1,8 @@
+const { format } = require('util')
+const fs = require('fs')
+const path = require('path')
+const os = require('os')
+
 class OutputManager {
     constructor() {
         this.tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'http-tester'))
@@ -77,4 +82,4 @@ class OutputManager {
     }
 }
 
-module.
+module.exports = { OutputManager }
