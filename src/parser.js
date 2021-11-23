@@ -1,4 +1,5 @@
 const fs = require('fs')
+const path = require('path')
 
 const getNextSection = section => {
     const availableSections = [
@@ -45,6 +46,11 @@ class Parser {
         this.pipeline = pipeline
         this.currentTestCase = {}
         this.section = 'url'
+        this.subjectFilePath = ''
+    }
+
+    setSubject(subjectFilePath) {
+        this.subjectFilePath = subjectFilePath
     }
 
     processLine(line) {
@@ -92,7 +98,12 @@ class Parser {
                 this.currentTestCase.tests = ''
             }
 
-            this.currentTestCase.tests += fs.readFileSync(testFilename, {
+            let subjectPath = path.resolve(
+                path.dirname(this.subjectFilePath),
+                testFilename
+            )
+
+            this.currentTestCase.tests += fs.readFileSync(subjectPath, {
                 encoding: 'utf-8'
             }) + '\n'
 
@@ -106,7 +117,12 @@ class Parser {
                 this.currentTestCase.body = ''
             }
 
-            this.currentTestCase.body += fs.readFileSync(bodyFilename, {
+            let subjectPath = path.resolve(
+                path.dirname(this.subjectFilePath),
+                bodyFilename
+            )
+
+            this.currentTestCase.body += fs.readFileSync(subjectPath, {
                 encoding: 'utf-8'
             }) + '\n'
 

@@ -1,12 +1,12 @@
 POST http://{{host}}/status/400
 Accept: application/json
 
-> tests/functional/test_case_with_external_script.js
+> test_case_with_external_script.js
 
 ###
 
 DELETE http://{{host}}/status/200
 Accept: application/json
 
-> tests/functional/test_case_with_external_script.js
+> test_case_with_external_script.js
 

@@ -1,7 +1,7 @@
 POST http://{{host}}/anything/{anything}
 Accept: application/json
 
-< tests/functional/test_case_with_body_from_file.json
+< test_case_with_body_from_file.json
 
 > {%
     client.global.set('flow_test_1', response.body.json.test)
