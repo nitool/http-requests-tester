@@ -2,8 +2,6 @@ const http = require('http')
 const https = require('https')
 const vm = require('vm')
 const { ResponseHeaders } = require('./client')
-const dotsMaxColumns = Math.floor(process.stdout.columns * 0.4)
-let dotsColumn = 0
 
 const createContentTypeObject = contentType => {
     const mimeType = contentType.split(';')[0]
@@ -227,9 +225,9 @@ class TestCase {
             })
 
         if (testSucceded) {
-            process.stdout.write('.')
+            this.pipeline.outputManager.printDot()
         } else {
-            process.stdout.write('F')
+            this.pipeline.outputManager.printFailed()
             this.pipeline.failedTestsCount++
             this.pipeline.outputManager.saveFailedAssertionsToFile({
                 test: this.config,
@@ -254,7 +252,7 @@ class TestCase {
             }
 
             if (typeof output.test.error !== 'undefined') {
-                process.stdout.write('E')
+                this.pipeline.outputManager.printError()
                 this.pipeline.errorsCount++
                 this.pipeline.outputManager.saveErrorToFile({
                     test: this.config,
@@ -262,12 +260,6 @@ class TestCase {
                 })
             } else {
                 this.manageTestOutput(output)
-            }
-
-            dotsColumn++
-            if (dotsColumn === dotsMaxColumns) {
-                dotsColumn = 0
-                process.stdout.write('\n')
             }
         }
     }

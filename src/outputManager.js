@@ -2,11 +2,13 @@ const { format } = require('util')
 const fs = require('fs')
 const path = require('path')
 const os = require('os')
+const dotsMaxColumns = Math.floor(process.stdout.columns * 0.4)
 
 class OutputManager {
     constructor() {
         this.tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'http-tester'))
         this.errorFile = 'output_logs'
+        this.dotsColumn = 0
     }
 
     async saveLogToFile(input) {
@@ -65,6 +67,27 @@ class OutputManager {
         fs.appendFileSync(path.join(this.tmpDir, this.errorFile), '\n')
     }
 
+    print(element) {
+        process.stdout.write(element)
+        this.dotsColumn++
+        if (this.dotsColumn === dotsMaxColumns) {
+            this.dotsColumn = 0
+            process.stdout.write('\n')
+        }
+    }
+
+    printDot() {
+        this.print('.')
+    }
+
+    printError() {
+        this.print('E')
+    }
+
+    printFailed() {
+        this.print('F')
+    }
+
     purge() {
         try {
             fs.accessSync(path.join(this.tmpDir, this.errorFile), fs.constants.R_OK)
@@ -79,6 +102,8 @@ class OutputManager {
             recursive: true,
             force: true
         })
+
+        this.dotsColumn = 0
     }
 }
 
