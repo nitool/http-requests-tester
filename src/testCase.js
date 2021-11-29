@@ -1,5 +1,6 @@
 const http = require('http')
 const https = require('https')
+const {parse} = require('path')
 const vm = require('vm')
 const { ResponseHeaders } = require('./client')
 
@@ -87,7 +88,7 @@ class TestCase {
                 && this.config.method === 'GET'
             ) {
                 let searchParams
-                let body = this.pipeline.context.applyClientVariable(this.config.body.replace(/[\n]/g, ''))
+                let body = this.pipeline.context.applyClientVariable(this.config.body.join(''))
                 try {
                     searchParams = new URLSearchParams(JSON.parse(body))
                 } catch (e) {
@@ -175,8 +176,15 @@ class TestCase {
             && this.config.method !== 'GET'
         ) {
             let parsedBody
+            let that = this
             try {
-                parsedBody = this.pipeline.context.applyClientVariable(this.config.body).split('\n')
+                parsedBody = this.config.body.map(data => {
+                    if (typeof data === 'object') {
+                        return data
+                    }
+
+                    return that.pipeline.context.applyClientVariable(data)
+                })
             } catch (error) {
                 this.config.tests = undefined
                 this.pipeline.context.getVmContext().client.output.push({
@@ -206,7 +214,15 @@ class TestCase {
                 break
             }
 
-            req.write(parsedBody.join('\n'))
+            parsedBody = parsedBody.map(data => {
+                if (typeof data === 'object') {
+                    return data
+                }
+                
+                return Buffer.from(data, 'utf-8')
+            })
+
+            req.write(Buffer.concat(parsedBody))
         }
 
         req.end()

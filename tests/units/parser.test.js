@@ -68,8 +68,8 @@ Content-Type: application/json
     expect(testCase.headers['Content-Type']).toBe('application/json')
     expect(testCase.noLog).toBe(false)
     expect(testCase.noRedirect).toBe(false)
-    expect(JSON.parse(testCase.body)).toHaveProperty('exampleField')
-    expect(JSON.parse(testCase.body).exampleField).toBe(10)
+    expect(JSON.parse(testCase.body.join(''))).toHaveProperty('exampleField')
+    expect(JSON.parse(testCase.body.join('')).exampleField).toBe(10)
     expect(testCase.tests).toContain("client.assert(response.body.exampleField === 10, 'exampleField')")
 })
 
@@ -99,8 +99,8 @@ Content-Type: application/json
     expect(testCase.headers['Content-Type']).toBe('application/json')
     expect(testCase.noLog).toBe(true)
     expect(testCase.noRedirect).toBe(false)
-    expect(JSON.parse(testCase.body)).toHaveProperty('exampleField')
-    expect(JSON.parse(testCase.body).exampleField).toBe(10)
+    expect(JSON.parse(testCase.body.join(''))).toHaveProperty('exampleField')
+    expect(JSON.parse(testCase.body.join('')).exampleField).toBe(10)
     expect(testCase.tests).toContain("client.assert(response.body.exampleField === 10, 'exampleField')")
 })
 
@@ -130,8 +130,8 @@ Content-Type: application/json
     expect(testCase.headers['Content-Type']).toBe('application/json')
     expect(testCase.noRedirect).toBe(true)
     expect(testCase.noLog).toBe(false)
-    expect(JSON.parse(testCase.body)).toHaveProperty('exampleField')
-    expect(JSON.parse(testCase.body).exampleField).toBe(10)
+    expect(JSON.parse(testCase.body.join(''))).toHaveProperty('exampleField')
+    expect(JSON.parse(testCase.body.join('')).exampleField).toBe(10)
     expect(testCase.tests).toContain("client.assert(response.body.exampleField === 10, 'exampleField')")
 })
 
@@ -155,7 +155,7 @@ Content-Type: application/json
     expect(testCase.headers['Content-Type']).toBe('application/json')
     expect(testCase.noRedirect).toBe(false)
     expect(testCase.noLog).toBe(false)
-    expect(JSON.parse(testCase.body)).toStrictEqual([])
+    expect(JSON.parse(testCase.body.join(''))).toStrictEqual([])
 })
 
 // todo: write more test cases

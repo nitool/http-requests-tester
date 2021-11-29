@@ -114,7 +114,7 @@ class Parser {
             const [bodyFilename] = line.match(/< ([0-9A-Za-z\/_.]*)$/).slice(1)
             this.section = 'body'
             if (!this.currentTestCase.hasOwnProperty('body')) {
-                this.currentTestCase.body = ''
+                this.currentTestCase.body = []
             }
 
             let subjectPath = path.resolve(
@@ -122,9 +122,16 @@ class Parser {
                 bodyFilename
             )
 
-            this.currentTestCase.body += fs.readFileSync(subjectPath, {
-                encoding: 'utf-8'
-            }) + '\n'
+            if (['.txt', '.xml', '.json'].indexOf(path.extname(subjectPath)) > -1) {
+                this.currentTestCase.body.push(fs.readFileSync(subjectPath, {
+                    encoding: 'utf-8'
+                }))
+            } else {
+                this.currentTestCase.body.push(Buffer.concat([
+                    fs.readFileSync(subjectPath),
+                    Buffer.from('\n', 'utf-8')
+                ]))
+            }
 
             return
         }
@@ -161,10 +168,10 @@ class Parser {
 
         if (this.section === 'body') {
             if (!this.currentTestCase.hasOwnProperty('body')) {
-                this.currentTestCase.body = ''
+                this.currentTestCase.body = []
             }
 
-            this.currentTestCase.body += line.trim() + '\n'
+            this.currentTestCase.body.push(line.trim() + '\n')
         }
 
         if (sectionsQueries.isTestsSectionContent(line, this)) {
