@@ -27,7 +27,7 @@ const sectionsQueries = {
 
     isTestCaseFinishingLine: line => /^###/.test(line.trim()),
     isTestsSectionStart: line => /^> \{%$/.test(line.trim()),
-    isTestsSectionFile: line => /> ([0-9A-Za-z\/_.\-]*)$/.test(line.trim()),
+    isTestsSectionFile: line => /^> ([0-9A-Za-z\/_.\-]*)$/.test(line.trim()),
     isTestCaseNameLine: line => /^([/]{2}|[#]{1,3})(\s+)?\w/.test(line),
     isNoLogLine: line => /^([/]{2}|[#]{1,3})(\s+)?(@no-log)/.test(line),
     isNoRedirectLine: line => /^([/]{2}|[#]{1,3})(\s+)?(@no-redirect)/.test(line),
@@ -38,7 +38,7 @@ const sectionsQueries = {
             && line.trim().length > 0 
             && parser.section === 'tests'
     },
-    isBodySectionFile: line => /< ([0-9A-Za-z\/_.\-]*)$/.test(line.trim()),
+    isBodySectionFile: line => /^< ([0-9A-Za-z\/_.\-]*)$/.test(line.trim()),
 }
 
 class Parser {
