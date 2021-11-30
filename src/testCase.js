@@ -1,6 +1,5 @@
 const http = require('http')
 const https = require('https')
-const {parse} = require('path')
 const vm = require('vm')
 const { ResponseHeaders } = require('./client')
 
@@ -228,8 +227,18 @@ class TestCase {
         req.end()
     }
 
-    createRequestPromise() {
-        return new Promise(this.makeRequest.bind(this))
+    createRequestPromise(subject) {
+        const that = this
+        return new Promise((resolve, reject) => {
+            const resolveDecorator = data => {
+                resolve({
+                    response: data,
+                    subject: subject
+                })
+            }
+
+            that.makeRequest(resolveDecorator, reject)
+        })
     }
 
     manageTestOutput(output) {
@@ -241,11 +250,11 @@ class TestCase {
             })
 
         if (testSucceded) {
-            this.pipeline.outputManager.printDot()
+            this.pipeline.output.current.printDot()
         } else {
-            this.pipeline.outputManager.printFailed()
+            this.pipeline.output.current.printFailed()
             this.pipeline.failedTestsCount++
-            this.pipeline.outputManager.saveFailedAssertionsToFile({
+            this.pipeline.output.logs.saveFailedAssertionsToFile({
                 test: this.config,
                 output: output
             })
@@ -257,7 +266,7 @@ class TestCase {
             if (typeof output.test === 'undefined'
                 && this.pipeline.options.verbose
             ) {
-                this.pipeline.outputManager.saveLogToFile({
+                this.pipeline.output.logs.saveLogToFile({
                     test: this.config,
                     output: output
                 })
@@ -268,9 +277,9 @@ class TestCase {
             }
 
             if (typeof output.test.error !== 'undefined') {
-                this.pipeline.outputManager.printError()
+                this.pipeline.output.current.printError()
                 this.pipeline.errorsCount++
-                this.pipeline.outputManager.saveErrorToFile({
+                this.pipeline.output.logs.saveErrorToFile({
                     test: this.config,
                     output: output
                 })

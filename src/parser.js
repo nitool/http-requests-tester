@@ -66,7 +66,7 @@ class Parser {
             this.currentTestCase.noRedirect = this.currentTestCase.noRedirect ?? false
             this.currentTestCase.noLog = this.currentTestCase.noLog ?? false
             const test = Object.assign({}, this.currentTestCase)
-            this.pipeline.push(test)
+            this.pipeline.push(test, this.subjectFilePath)
             this.currentTestCase = {}
             this.section = 'url'
         }
@@ -187,7 +187,7 @@ class Parser {
         if (Object.keys(this.currentTestCase).length > 0) {
             this.currentTestCase.noRedirect = this.currentTestCase.noRedirect ?? false
             this.currentTestCase.noLog = this.currentTestCase.noLog ?? false
-            this.pipeline.push(this.currentTestCase)
+            this.pipeline.push(this.currentTestCase, this.subjectFilePath)
         }
 
         this.currentTestCase = {}

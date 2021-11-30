@@ -1,6 +1,6 @@
 const { Client } = require('./client')
 const { Context } = require('./context')
-const { OutputManager } = require('./outputManager')
+const { Output } = require('./output')
 const { TestCase } = require('./testCase')
 
 class TestPipeline {
@@ -11,37 +11,37 @@ class TestPipeline {
         this.errorsCount = 0
         this.assertionsCount = 0
         this.initialPromise = new Promise(resolve => resolve())
-        this.outputManager = new OutputManager()
+        this.output = new Output()
         this.finishWithError = false
         this.context = new Context(new Client())
         this.context.setClientConfig(config)
     }
 
-    push(test) {
+    push(test, subject) {
         const testCase = new TestCase(test, this)
         this.initialPromise = this.initialPromise
-            .then(() => testCase.createRequestPromise())
-            .then(response => testCase.testResponse(response))
-            .catch(error => {
-                console.log(error)
+            .then(() => testCase.createRequestPromise(subject))
+            .then(({ response, subject }) => {
+                testCase.testResponse(response)
+
+                return {
+                    response: null,
+                    subject: subject
+                }
             })
     }
 
-    cleanup() {
+    cleanup(subject) {
         process.stdout.write('\n\n')
-        this.outputManager.purge()
+        this.output.summary.pushSummary(
+            subject,
+            this.assertionsCount,
+            this.failedTestsCount,
+            this.errorsCount
+        )
 
-        process.stdout.write(`Assertions: ${this.assertionsCount}`)
-
-        if (this.failedTestsCount > 0) {
-            process.stdout.write(` | Failed tests: ${this.failedTestsCount}`)
-        } 
-
-        if (this.errorsCount > 0) {
-            process.stdout.write(` | Errors: ${this.errorsCount}\n`)
-        } else {
-            process.stdout.write('\n')
-        }
+        this.output.purge()
+        this.output.summary.outputSummaryForFile(subject)
 
         process.stdout.write('\n')
         this.finishWithError = this.finishWithError 
@@ -51,18 +51,28 @@ class TestPipeline {
         this.failedTestsCount = 0
         this.errorsCount = 0
         this.assertionsCount = 0
-        this.outputManager = new OutputManager()
     }
 
     startNewTest() {
         const that = this
-        this.initialPromise.then(() => that.cleanup())
+        this.initialPromise.then(({ subject }) => {
+            that.cleanup(subject)
+
+            return {
+                response: null,
+                subject: subject
+            }
+        })
     }
 
     finish() {
         const that = this
-        this.initialPromise.finally(() => {
-            that.cleanup()
+        this.initialPromise.then(({ subject }) => {
+            that.cleanup(subject)
+            if (Object.keys(that.output.summary.summaries).length > 1) {
+                that.output.summary.outputAllSummaries()
+            }
+
             process.exit(that.finishWithError)
         })
     }

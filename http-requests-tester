@@ -31,9 +31,9 @@ const processLineByLine = async () => {
 
         const filename = options['test-file'][key]
         parser.setSubject(filename)
-        pipeline.initialPromise.then(resolve => {
+        pipeline.initialPromise.then((context) => {
             process.stdout.write(format('Running tests for %s file.\n\n', filename))
-            return new Promise(resolve => resolve())
+            return new Promise(resolve => resolve(context))
         })
 
         const rl = readline.createInterface({
