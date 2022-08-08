@@ -1,6 +1,7 @@
 const http = require('http')
 const https = require('https')
 const vm = require('vm')
+const qs = require('qs')
 const { ResponseHeaders } = require('./client')
 
 const createContentTypeObject = contentType => {
@@ -39,6 +40,21 @@ class TestCase {
         }
 
         return parsedHeaders
+    }
+
+    makeSearchParams(body) {
+        let newBody
+        try {
+            newBody = JSON.parse(body)
+        } catch (e) {
+            newBody = encodeURIComponent(body)
+        }
+
+        if (typeof newBody !== 'object') {
+            return newBody
+        }
+
+        return qs.stringify(newBody)
     }
 
     makeRequest(resolve, reject, configOverride) {
@@ -86,14 +102,8 @@ class TestCase {
             if (typeof this.config.body !== 'undefined'
                 && this.config.method === 'GET'
             ) {
-                let searchParams
-                let body = this.pipeline.context.applyClientVariable(this.config.body.join(''))
-                try {
-                    searchParams = new URLSearchParams(JSON.parse(body))
-                } catch (e) {
-                    searchParams = new URLSearchParams(body)
-                }
-
+                let body = this.pipeline.context.applyClientVariable(this.config.body.join('').replace(/\s+/g, ''))
+                let searchParams = this.makeSearchParams(body)
                 const separator = uriString.indexOf('?') > -1 ? '&' : '?';
                 uri = new URL(uriString + separator + searchParams.toString())
             } else {

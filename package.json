@@ -22,5 +22,8 @@
     "requests",
     "tester",
     "jetbrains"
-  ]
+  ],
+  "dependencies": {
+    "qs": "^6.11.0"
+  }
 }
