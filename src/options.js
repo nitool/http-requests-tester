@@ -13,6 +13,7 @@ const showHelpMessage = exitCode => {
     process.stdout.write('\t--selected-client name - each client file can contain multiple clients/configs, this option is required and selects config to use while making request\n')
     process.stdout.write('\t--help|-h - shows this message\n')
     process.stdout.write('\t--verbose|-v - show logs, by default only errors are printed out\n')
+    process.stdout.write('\t--autolog-response - logs every received response when verbose is enabled\n\n')
     process.stdout.write('Scripts returns exit code 0 if all assertions succeeded and 1 if at least one assertion failed.\n')
     process.exit(exitCode)
 }
@@ -29,7 +30,8 @@ const parseOptions = args => {
         'client-file': 'rest-client.env.json',
         'selected-client': '',
         'test-file': [],
-        'verbose': false
+        'verbose': false,
+        'autolog-response': false
     }
 
     while (optionsIndex < args.length) {
@@ -43,6 +45,8 @@ const parseOptions = args => {
             options['client-file'] = extractValue(args, optionsIndex)
         } else if (args[optionsIndex].indexOf('--selected-client') > -1) {
             options['selected-client'] = extractValue(args, optionsIndex)
+        } else if (args[optionsIndex].indexOf('--autolog-response') > -1) {
+            options['autolog-response'] = true
         } else if (args[optionsIndex].indexOf('.http') > -1) {
             options['test-file'].push(args[optionsIndex].trim())
         }

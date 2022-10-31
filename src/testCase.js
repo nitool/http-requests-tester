@@ -161,6 +161,10 @@ class TestCase {
                         contentType = createContentTypeObject(res.headers['content-type'])
                     }
 
+                    if (this.pipeline.options['autolog-response']) {
+                        this.pipeline.context.getVmContext().client.log(body)
+                    }
+
                     if (contentType !== null 
                         && contentType.mimeType === 'application/json'
                     ) {
