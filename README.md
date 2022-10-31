@@ -42,5 +42,7 @@ It works but work is still in progress. Package needs refactor and unit tests.
 --client-file=path_to_file.json - config file with possible clients
 --selected-client='name' - each client file can contain multiple clients, this options is required and selects config to use while making request
 --help|-h - shows help message
+--verbose|-v - show logs, by default only errors are printed out
+--autolog-response - logs every received response when verbose is enabled
 ```
 

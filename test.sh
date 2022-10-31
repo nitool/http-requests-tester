@@ -10,7 +10,7 @@ node http-requests-tester ./tests/functional/test_case_with_variables.http --sel
 node http-requests-tester ./tests/functional/test_case_flow.http --selected-client test --client-file rest-client.env.json
 node http-requests-tester ./tests/functional/test_case_without_headers.http --selected-client test --client-file rest-client.env.json
 node http-requests-tester ./tests/functional/test_case_with_external_script.http --selected-client test --client-file rest-client.env.json
-node http-requests-tester ./tests/functional/test_case_with_dynamic.http --selected-client test --client-file rest-client.env.json
+node http-requests-tester ./tests/functional/test_case_with_dynamic.http --verbose --autolog-response --selected-client test --client-file rest-client.env.json
 node http-requests-tester ./tests/functional/test_case_with_body_from_file.http --selected-client test --client-file rest-client.env.json
 node http-requests-tester ./tests/functional/test_case_with_form_data.http --selected-client test --client-file rest-client.env.json
 node http-requests-tester ./tests/functional/test_case_annotations.http --selected-client test --client-file rest-client.env.json
